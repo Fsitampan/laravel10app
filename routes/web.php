@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
-    return view('landing');
+    return view('login');
 });
 
 Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -17,5 +17,5 @@ route::middleware('auth:siswa')->group(function(){
 });
 
 route::middleware('auth:admin')->group(function(){
-    route::get('/dashboard-admin', [AuthController::class, 'dashboardAdminwe'])->name('admin.dashboard_admin');
+    route::get('/dashboard-admin', [AuthController::class, 'dashboardAdmin'])->name('admin.dashboard_admin');
 });
