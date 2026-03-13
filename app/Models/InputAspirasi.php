@@ -11,6 +11,7 @@ class InputAspirasi extends Model
 
     protected $primaryKey = 'id_pelaporan';
     protected $table = 'input_aspirasi';
+    public $timestamps = false;
     protected $fillable = [
         'nis',
         'keterangan',
@@ -24,7 +25,7 @@ class InputAspirasi extends Model
     }
      public function aspirasi()
     {
-        return $this->hasOne(aspirasi::class, 'id_pelaporan', 'id_pelaporan');
+        return $this->hasOne(aspirasi::class, 'id_aspirasi', 'id_pelaporan');
     }
 
     public function siswa()

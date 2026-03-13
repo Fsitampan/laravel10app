@@ -11,6 +11,8 @@ class Aspirasi extends Model
 
     protected $primaryKey = 'id_aspirasi';
     protected $table = 'aspirasi';
+    public $timestamps = false;
+
     protected $fillable = [
         'keterangan',
         'lokasi',

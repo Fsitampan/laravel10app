@@ -11,11 +11,11 @@ class Kategori extends Model
 
     protected $primaryKey = 'id_kategori';
     protected $table = 'kategori';
+    public $timestamps = false;
     protected $fillable = [
         'ket_kategori',
     ];
 
-    public $timestamps = false;
 
     public function inputaspirasi()
     {
