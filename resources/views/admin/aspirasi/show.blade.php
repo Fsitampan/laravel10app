@@ -4,29 +4,58 @@
 
 @section('content')
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-lg-8">
+        {{-- Tombol Kembali --}}
+        <div class="mb-3">
+            <a href="{{ route('admin.aspirasi.index') }}" class="btn btn-link text-decoration-none text-muted p-0 small">
+                <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
+            </a>
+        </div>
 
         {{-- Detail Aspirasi --}}
-        <div class="card border-0 shadow-sm mb-3" style="border-radius:14px">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2 text-primary"></i>Detail Aspirasi</h6>
-                <div class="row g-2 small">
-                    <div class="col-5 text-muted">Siswa</div>
-                    <div class="col-7 fw-semibold">{{ $input->siswa->username ?? '-' }}
-                        <span class="text-muted fw-normal">({{ $input->siswa->kelas ?? '' }})</span>
+        <div class="card border-0 shadow-sm mb-4 rounded-4 overflow-hidden">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="fw-bold mb-0 text-primary">
+                    <i class="bi bi-info-circle me-2"></i>Informasi Aspirasi
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4 small">
+                    <div class="col-sm-6">
+                        <label class="text-muted d-block mb-1">Pengirim</label>
+                        <div class="fw-bold text-dark fs-6">{{ $input->siswa->username ?? '-' }}</div>
+                        <span class="badge bg-light text-muted border fw-normal">{{ $input->siswa->kelas ?? '' }}</span>
                     </div>
-                    <div class="col-5 text-muted">Kategori</div>
-                    <div class="col-7"><span class="badge bg-secondary">{{ $input->kategori->ket_kategori }}</span></div>
-                    <div class="col-5 text-muted">Lokasi</div>
-                    <div class="col-7">{{ $input->lokasi }}</div>
-                    <div class="col-5 text-muted">Keterangan</div>
-                    <div class="col-7">{{ $input->keterangan }}</div>
-                    <div class="col-5 text-muted">Tanggal Masuk</div>
-                    <div class="col-7">{{ $input->created_at ? $input->created_at->format('d M Y, H:i') : '-' }}</div>
-                    <div class="col-5 text-muted">Status Saat Ini</div>
-                    <div class="col-7">
-                        <span class="badge badge-{{ $input->aspirasi->status ?? 'menunggu' }} rounded-pill px-3 py-2">
-                            {{ ucfirst($input->aspirasi->status ?? 'menunggu') }}
+                    <div class="col-sm-6">
+                        <label class="text-muted d-block mb-1">Kategori & Lokasi</label>
+                        <div>
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-medium me-1">
+                                {{ $input->kategori->ket_kategori }}
+                            </span>
+                            <span class="text-dark fw-medium"><i class="bi bi-geo-alt me-1"></i>{{ $input->lokasi }}</span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="text-muted d-block mb-1">Isi Aspirasi</label>
+                        <div class="p-3 bg-light rounded-3 border-start border-primary border-4 text-dark italic">
+                            "{{ $input->keterangan }}"
+                        </div>
+                    </div>
+                    <div class="col-sm-6 text-muted">
+                        <i class="bi bi-calendar3 me-1"></i> 
+                        {{ $input->created_at ? \Carbon\Carbon::parse($input->created_at)->format('d F Y, H:i') : '-' }}
+                    </div>
+                    <div class="col-sm-6 text-end">
+                        @php
+                            $status = strtolower($input->aspirasi->status ?? 'menunggu');
+                            $color = match($status) {
+                                'selesai' => 'success',
+                                'proses', 'diproses' => 'warning',
+                                default => 'secondary'
+                            };
+                        @endphp
+                        <span class="badge bg-{{ $color }} bg-opacity-10 text-{{ $color }} rounded-pill px-4 py-2 fw-bold border border-{{ $color }} border-opacity-25">
+                            {{ ucfirst($status) }}
                         </span>
                     </div>
                 </div>
@@ -34,55 +63,54 @@
         </div>
 
         {{-- Form Tanggapan --}}
-        <div class="card border-0 shadow-sm" style="border-radius:14px">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3"><i class="bi bi-chat-left-dots me-2 text-success"></i>Beri Tanggapan</h6>
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-4 text-success">
+                    <i class="bi bi-chat-left-dots me-2"></i>Beri Tanggapan
+                </h6>
 
                 <form action="{{ route('admin.aspirasi.update', $input->id_pelaporan) }}" method="POST">
-                    @csrf @method('PUT')
+                    @csrf 
+                    @method('PUT')
 
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold">Status</label>
-                        <select name="status" class="form-select form-select-sm @error('status') is-invalid @enderror">
-                            @foreach(['menunggu','diproses','selesai'] as $s)
-                            <option value="{{ $s }}" {{ ($input->aspirasi->status ?? 'menunggu') == $s ? 'selected' : '' }}>
-                                {{ ucfirst($s) }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold">Feedback / Tanggapan</label>
-                        <textarea name="feedback" rows="3" maxlength="50"
-                            class="form-control form-control-sm @error('feedback') is-invalid @enderror"
-                            placeholder="Tulis tanggapan...">{{ old('feedback', $input->aspirasi->feedback ?? '') }}</textarea>
-                        @error('feedback')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label small fw-semibold">Rating</label>
-                        <div class="d-flex gap-3" id="star-group">
-                            @for($i=1;$i<=5;$i++)
-                            <div class="form-check form-check-inline m-0">
-                                <input class="form-check-input visually-hidden" type="radio" name="rating"
-                                    id="star{{ $i }}" value="{{ $i }}"
-                                    {{ old('rating', $input->aspirasi->rating ?? '') == $i ? 'checked' : '' }}>
-                                <label class="form-check-label fs-4 star-label" for="star{{ $i }}"
-                                    style="cursor:pointer;color:#dee2e6">
-                                    <i class="bi bi-star-fill"></i>
-                                </label>
-                            </div>
-                            @endfor
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ubah Status</label>
+                            <select name="status" class="form-select rounded-3 @error('status') is-invalid @enderror">
+                                @foreach(['menunggu','diproses','selesai'] as $s)
+                                <option value="{{ $s }}" {{ ($input->aspirasi->status ?? 'menunggu') == $s ? 'selected' : '' }}>
+                                    {{ ucfirst($s) }}
+                                </option>
+                                @endforeach
+                            </select>
+                            @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
-                    </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success btn-sm px-4">
-                            <i class="bi bi-save me-1"></i> Simpan Tanggapan
-                        </button>
-                        <a href="{{ route('admin.aspirasi.index') }}" class="btn btn-outline-secondary btn-sm">Kembali</a>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Beri Rating</label>
+                            <div class="d-flex gap-2" id="star-group">
+                                @for($i=1;$i<=5;$i++)
+                                <div class="form-check p-0 m-0">
+                                    <input class="form-check-input d-none" type="radio" name="rating" id="star{{ $i }}" value="{{ $i }}" {{ old('rating', $input->aspirasi->rating ?? '') == $i ? 'checked' : '' }}>
+                                    <label class="star-label fs-3" for="star{{ $i }}" style="cursor:pointer; color:#dee2e6 transition: 0.2s">
+                                        <i class="bi bi-star-fill"></i>
+                                    </label>
+                                </div>
+                                @endfor
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Feedback / Tanggapan <span class="text-muted fw-normal">(Maks. 50 Karakter)</span></label>
+                            <textarea name="feedback" rows="3" maxlength="50" class="form-control rounded-3 @error('feedback') is-invalid @enderror" placeholder="Tuliskan tindakan atau pesan singkat...">{{ old('feedback', $input->aspirasi->feedback ?? '') }}</textarea>
+                            @error('feedback')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="col-12 pt-2">
+                            <button type="submit" class="btn btn-success rounded-3 px-4 fw-bold">
+                                <i class="bi bi-check-circle me-1"></i> Simpan Tanggapan
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -98,19 +126,25 @@
     const inputs = document.querySelectorAll('input[name="rating"]');
 
     function paintStars(n) {
-        stars.forEach((s, i) => s.style.color = i < n ? '#ffc107' : '#dee2e6');
+        stars.forEach((s, i) => {
+            s.style.color = i < n ? '#ffc107' : '#dee2e6';
+            s.style.transform = i < n ? 'scale(1.1)' : 'scale(1)';
+        });
     }
 
-    // Init
+    // Init state
     inputs.forEach((inp, i) => { if (inp.checked) paintStars(i + 1); });
 
     stars.forEach((star, i) => {
         star.addEventListener('mouseover', () => paintStars(i + 1));
-        star.addEventListener('mouseout',  () => {
-            const checked = [...inputs].findIndex(r => r.checked);
-            paintStars(checked >= 0 ? checked + 1 : 0);
+        star.addEventListener('mouseout', () => {
+            const checkedIndex = [...inputs].findIndex(r => r.checked);
+            paintStars(checkedIndex >= 0 ? checkedIndex + 1 : 0);
         });
-        star.addEventListener('click', () => paintStars(i + 1));
+        star.addEventListener('click', () => {
+            paintStars(i + 1);
+            inputs[i].checked = true;
+        });
     });
 </script>
-@endpush
+@endpusha

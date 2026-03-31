@@ -11,7 +11,7 @@ class InputAspirasi extends Model
 
     protected $primaryKey = 'id_pelaporan';
     protected $table = 'input_aspirasi';
-    public $timestamps = false;
+    public $timestamps = true;
     protected $fillable = [
         'nis',
         'keterangan',

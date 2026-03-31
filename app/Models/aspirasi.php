@@ -13,6 +13,11 @@ class Aspirasi extends Model
     protected $table = 'aspirasi';
     public $timestamps = false;
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     protected $fillable = [
         'keterangan',
         'lokasi',
@@ -24,14 +29,10 @@ class Aspirasi extends Model
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'id_kategori', 'id_kategori');
-    }
-     public function inputaspirasi()
-    {
-        return $this->hasOne(InputAspirasi::class, 'id_pelaporan', 'id_pelaporan');
-    }
+    }  
 
-    public function siswa()
+    public function inputaspirasi()
     {
-        return $this->belongsTo(Siswa::class, 'nis', 'nis');
+    return $this->belongsTo(InputAspirasi::class, 'id_aspirasi', 'id_pelaporan');
     }
 }

@@ -4,21 +4,21 @@
 
 @section('content')
 {{-- Filter --}}
-<div class="card border-0 shadow-sm mb-3" style="border-radius:14px">
-    <div class="card-body py-3">
-        <form method="GET" action="{{ route('admin.aspirasi.index') }}" class="row g-2 align-items-end">
+<div class="card border-0 shadow-sm mb-4 rounded-4">
+    <div class="card-body p-3">
+        <form method="GET" action="{{ route('admin.aspirasi.index') }}" class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label small fw-semibold mb-1">Tanggal</label>
-                <input type="date" name="tanggal" class="form-control form-control-sm" value="{{ request('tanggal') }}">
+                <label class="form-label small fw-bold text-muted mb-1">Tanggal</label>
+                <input type="date" name="tanggal" class="form-control form-control-sm rounded-3" value="{{ request('tanggal') }}">
             </div>
             <div class="col-md-3">
-                <label class="form-label small fw-semibold mb-1">Nama Siswa</label>
-                <input type="text" name="nama" class="form-control form-control-sm" placeholder="Cari nama..." value="{{ request('nama') }}">
+                <label class="form-label small fw-bold text-muted mb-1">Nama Siswa</label>
+                <input type="text" name="nama" class="form-control form-control-sm rounded-3" placeholder="Cari nama..." value="{{ request('nama') }}">
             </div>
             <div class="col-md-3">
-                <label class="form-label small fw-semibold mb-1">Kategori</label>
-                <select name="id_kategori" class="form-select form-select-sm">
-                    <option value="">-- Semua --</option>
+                <label class="form-label small fw-bold text-muted mb-1">Kategori</label>
+                <select name="id_kategori" class="form-select form-select-sm rounded-3">
+                    <option value="">Semua Kategori</option>
                     @foreach($kategoris as $k)
                         <option value="{{ $k->id_kategori }}" {{ request('id_kategori') == $k->id_kategori ? 'selected' : '' }}>
                             {{ $k->ket_kategori }}
@@ -27,70 +27,99 @@
                 </select>
             </div>
             <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary btn-sm flex-fill"><i class="bi bi-search me-1"></i>Filter</button>
-                <a href="{{ route('admin.aspirasi.index') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-x-lg"></i></a>
+                <button type="submit" class="btn btn-primary btn-sm flex-fill rounded-3">
+                    <i class="bi bi-filter me-1"></i>Filter
+                </button>
+                <a href="{{ route('admin.aspirasi.index') }}" class="btn btn-light border btn-sm rounded-3">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </a>
             </div>
         </form>
     </div>
 </div>
 
 {{-- Table --}}
-<div class="card border-0 shadow-sm" style="border-radius:14px">
-    <div class="card-body p-0">
-        <div class="px-4 py-3 border-bottom">
-            <h6 class="fw-bold mb-0"><i class="bi bi-list-task me-2 text-primary"></i>
-                Daftar Aspirasi
-                <span class="badge bg-secondary ms-1">{{ $aspirasis->total() }}</span>
-            </h6>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 small">
-                <thead class="table-light">
-                    <tr>
-                        <th class="px-4">#</th>
-                        <th>Siswa / Kelas</th>
-                        <th>Kategori</th>
-                        <th>Keterangan</th>
-                        <th>Lokasi</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse($aspirasis as $i => $item)
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white border-bottom py-3 px-4">
+        <h6 class="fw-bold mb-0 d-flex align-items-center">
+            <i class="bi bi-chat-left-text me-2 text-primary"></i>
+            Daftar Aspirasi
+            <span class="badge bg-light text-dark border ms-2 fw-medium">{{ $aspirasis->total() }}</span>
+        </h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-muted small">
                 <tr>
-                    <td class="px-4 text-muted">{{ $aspirasis->firstItem() + $i }}</td>
-                    <td>
-                        <div class="fw-semibold">{{ $item->siswa->username ?? '-' }}</div>
-                        <small class="text-muted">{{ $item->siswa->kelas ?? '' }}</small>
-                    </td>
-                    <td><span class="badge bg-secondary">{{ $item->kategori->ket_kategori }}</span></td>
-                    <td>{{ Str::limit($item->keterangan, 40) }}</td>
-                    <td class="text-muted">{{ $item->lokasi }}</td>
-                    <td class="text-muted">{{ $item->created_at ? $item->created_at->format('d/m/Y') : '-' }}</td>
-                    <td>
-                        <span class="badge badge-{{ $item->aspirasi->status ?? 'menunggu' }} rounded-pill">
-                            {{ ucfirst($item->aspirasi->status ?? 'menunggu') }}
-                        </span>
-                    </td>
-                    <td>
-                        <a href="{{ route('admin.aspirasi.show', $item->id_pelaporan) }}" class="btn btn-sm btn-outline-primary py-0 px-2">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                    </td>
+                    <th class="px-4 py-3 border-0">#</th>
+                    <th class="border-0">Siswa / Kelas</th>
+                    <th class="border-0">Kategori</th>
+                    <th class="border-0">Keterangan</th>
+                    <th class="border-0">Lokasi</th>
+                    <th class="border-0">Tanggal</th>
+                    <th class="border-0 text-center">Status</th>
+                    <th class="border-0 text-center">Aksi</th>
                 </tr>
-                @empty
-                <tr><td colspan="8" class="text-center text-muted py-5">Tidak ada data aspirasi.</td></tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if($aspirasis->hasPages())
-        <div class="px-4 py-3 border-top d-flex justify-content-end">
+            </thead>
+            <tbody class="small text-dark">
+            @forelse($aspirasis as $i => $item)
+            <tr>
+                <td class="px-4 text-muted">{{ $aspirasis->firstItem() + $i }}</td>
+                <td>
+                    <div class="fw-bold">{{ $item->siswa->username ?? '-' }}</div>
+                    <div class="text-muted" style="font-size: 11px">{{ $item->siswa->kelas ?? '' }}</div>
+                </td>
+                <td>
+                    <span class="badge bg-primary bg-opacity-10 text-primary fw-medium px-2 py-1">
+                        {{ $item->kategori->ket_kategori }}
+                    </span>
+                </td>
+                <td title="{{ $item->keterangan }}">{{ Str::limit($item->keterangan, 30) }}</td>
+                <td class="text-muted">{{ $item->lokasi }}</td>
+                
+                {{-- PERBAIKAN ERROR DI SINI --}}
+                <td class="text-muted">
+                    {{ $item->created_at ? \Carbon\Carbon::parse($item->created_at)->format('d/m/y') : '-' }}
+                </td>
+
+                <td class="text-center">
+                    @php
+                        $status = strtolower($item->aspirasi->status ?? 'menunggu');
+                        $color = match($status) {
+                            'selesai' => 'success',
+                            'proses', 'diproses' => 'warning',
+                            default => 'secondary'
+                        };
+                    @endphp
+                    <span class="badge bg-{{ $color }} bg-opacity-10 text-{{ $color }} rounded-pill px-3 py-1 fw-bold">
+                        {{ ucfirst($status) }}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <a href="{{ route('admin.aspirasi.show', $item->id_pelaporan) }}" class="btn btn-sm btn-light border rounded-3 p-1 px-2 shadow-sm text-primary">
+                        <i class="bi bi-eye-fill"></i>
+                    </a>
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="8" class="text-center py-5">
+                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="opacity-25 mb-3">
+                    <p class="text-muted mb-0">Belum ada aspirasi masuk.</p>
+                </td>
+            </tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div>
+    
+    @if($aspirasis->hasPages())
+    <div class="card-footer bg-white border-top py-3 px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="small text-muted">Menampilkan {{ $aspirasis->firstItem() }} - {{ $aspirasis->lastItem() }} data</span>
             {{ $aspirasis->withQueryString()->links('pagination::bootstrap-5') }}
         </div>
-        @endif
     </div>
+    @endif
 </div>
-@endsection
+@endsectiona

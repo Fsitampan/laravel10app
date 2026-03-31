@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\models\siswa;
-use App\models\admin;
+use App\Models\Siswa;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash; // ← tambahkan ini
 
 class AuthController extends Controller
 {
@@ -13,52 +14,71 @@ class AuthController extends Controller
     {
         return view('login');
     }
-    public function dashboardSiswa()
-    {
-        return view('siswa.dashboard_siswa');
-    }
-    public function dashboardAdmin(){
-        return view('admin.dashboard_admin');
-    }
 
-    public function login(Request $request){
-        $request->validate([
-            'identifier' => 'required',
-            'password' => 'required',
-        ],[
-            'identifier.required' => 'Nis atau username harus diisi',
-            'password.required' => 'password harus diisi'
-            ]);
-        $identifier = $request->identifier;
-        $password = $request->password;
+   public function login(Request $request)
+{
+    $request->validate([
+        'identifier' => 'required',
+        'password'   => 'required',
+    ], [
+        'identifier.required' => 'NIS atau username harus diisi',
+        'password.required'   => 'Password harus diisi',
+    ]);
 
-        //jika angka login siswa
-        if(is_numeric($identifier)){
-            $siswa = Siswa::where('nis', $identifier)
-            ->where('password', $password)
-            ->first();
-        if($siswa){
-            Auth::guard('siswa')->login($siswa);
-            return redirect()->route('siswa.dashboard_siswa');
+    $identifier = $request->identifier;
+    $password   = $request->password;
+
+    //Login siswa
+    if (is_numeric($identifier)) {
+        $siswa = Siswa::where('nis', $identifier)->first();
+
+        if ($siswa) {
+            if (!str_starts_with($siswa->password, '$2y$')) {
+                if ($siswa->password == $password) {
+                    $siswa->password = Hash::make($password);
+                    $siswa->save();
+                } else {
+                    return redirect()->back()->withErrors(['login' => 'NIS atau password salah'])
+                        ->withInput($request->only('identifier'));
+                }
+            }
+
+            if (Hash::check($password, $siswa->password)) {
+                Auth::guard('siswa')->login($siswa);
+                return redirect()->route('siswa.dashboard_siswa');
+            }
         }
-        return redirect()->back()->withErrors([
-            'login' => 'nis atau password salah'
-        ])->withInput($request->only('identifier'));
-        }
-        $admin = admin::where('username', $identifier)
-                ->where('password', $password)
-                ->first();
 
-        if($admin){
-             Auth::guard('admin')->login($admin);
+        return redirect()->back()->withErrors(['login' => 'NIS atau password salah'])
+            ->withInput($request->only('identifier'));
+    }
+
+    //Lofin admin
+    $admin = Admin::where('username', $identifier)->first();
+
+    if ($admin) {
+        if (!str_starts_with($admin->password, '$2y$')) {
+            if ($admin->password == $password) {
+                $admin->password = Hash::make($password);
+                $admin->save();
+            } else {
+                return redirect()->back()->withErrors(['login' => 'Username atau password salah'])
+                    ->withInput($request->only('identifier'));
+            }
+        }
+
+        if (Hash::check($password, $admin->password)) {
+            Auth::guard('admin')->login($admin);
             return redirect()->route('admin.dashboard_admin');
         }
-        return redirect()->back()->withErrors([
-            'login' => 'username atau password salah'
-        ])->withInput($request->only('identifier'));
     }
-    //logout
-    public function logout(Request $request){
+
+    return redirect()->back()->withErrors(['login' => 'Username atau password salah'])
+        ->withInput($request->only('identifier'));
+}
+
+    public function logout(Request $request)
+    {
         Auth::guard('siswa')->logout();
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
